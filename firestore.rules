@@ -1,0 +1,78 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: projects
+    // Document ID: auto-generated or timestamp-based
+    // Fields:
+    //   - uid: string (required) - Owner's UID
+    //   - projectName: string (required) - Name of the project
+    //   - projectDescription: string (required) - Summary
+    //   - projectType: string (required) - Web, Mobile, etc.
+    //   - targetUsers: string (required) - Audience
+    //   - techStack: list (required) - Technologies
+    //   - systemArchitecture: string (required) - Pattern
+    //   - mainModules: string (required) - Core areas
+    //   - databaseType: list (optional) - Storage
+    //   - externalIntegrations: list (optional) - 3rd party
+    //   - deploymentEnvironment: list (optional) - Hosting
+    //   - securityRequirements: string (optional) - Standards
+    //   - performanceRequirements: list (optional) - Targets
+    //   - methodology: string (required) - Process
+    //   - updatedAt: timestamp (required) - Last update
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isDocOwner() {
+      return isAuthenticated() && request.auth.uid == resource.data.uid;
+    }
+
+    function isValidProject(data) {
+      return data.keys().hasAll(['uid', 'projectName', 'projectDescription', 'projectType', 'targetUsers', 'techStack', 'systemArchitecture', 'mainModules', 'methodology', 'updatedAt']) &&
+             data.uid is string && data.uid.size() < 128 &&
+             data.projectName is string && data.projectName.size() > 0 && data.projectName.size() < 200 &&
+             data.projectDescription is string && data.projectDescription.size() < 2000 &&
+             data.projectType is string && data.projectType.size() < 100 &&
+             data.targetUsers is string && data.targetUsers.size() < 500 &&
+             data.techStack is list && data.techStack.size() < 50 &&
+             data.systemArchitecture is string && data.systemArchitecture.size() < 100 &&
+             data.mainModules is string && data.mainModules.size() < 1000 &&
+             data.methodology is string && data.methodology.size() < 100 &&
+             data.updatedAt is timestamp;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /projects/{projectId} {
+      allow read: if isDocOwner();
+      allow create: if isAuthenticated() && 
+                      request.resource.data.uid == request.auth.uid &&
+                      isValidProject(request.resource.data);
+      allow update: if isDocOwner() && 
+                      request.resource.data.uid == resource.data.uid &&
+                      isValidProject(request.resource.data);
+      allow delete: if isDocOwner();
+    }
+
+    // Default deny
+    match /{path=**} {
+      allow read, write: if false;
+    }
+  }
+}

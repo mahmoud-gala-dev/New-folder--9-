@@ -1,0 +1,84 @@
+{
+  "entities": {
+    "Project": {
+      "title": "Project Configuration",
+      "description": "Stores the architectural configuration of a software project.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "The UID of the user who owns this project."
+        },
+        "projectName": {
+          "type": "string",
+          "description": "The name of the project."
+        },
+        "projectDescription": {
+          "type": "string",
+          "description": "A summary of the project."
+        },
+        "projectType": {
+          "type": "string",
+          "description": "The type of application (Web, Mobile, etc.)."
+        },
+        "targetUsers": {
+          "type": "string",
+          "description": "The intended audience."
+        },
+        "techStack": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "List of technologies used."
+        },
+        "systemArchitecture": {
+          "type": "string",
+          "description": "The architectural pattern (Monolith, Microservices, etc.)."
+        },
+        "mainModules": {
+          "type": "string",
+          "description": "Core functional areas."
+        },
+        "databaseType": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Storage systems used."
+        },
+        "externalIntegrations": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Third-party services."
+        },
+        "deploymentEnvironment": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Hosting platforms."
+        },
+        "securityRequirements": {
+          "type": "string",
+          "description": "Security standards."
+        },
+        "performanceRequirements": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Speed and scale targets."
+        },
+        "methodology": {
+          "type": "string",
+          "description": "Development process."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp of the last update."
+        }
+      },
+      "required": ["uid", "projectName", "projectDescription", "projectType", "targetUsers", "techStack", "systemArchitecture", "mainModules", "methodology", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/projects/{projectId}": {
+      "schema": "Project",
+      "description": "Collection of user project configurations."
+    }
+  }
+}
